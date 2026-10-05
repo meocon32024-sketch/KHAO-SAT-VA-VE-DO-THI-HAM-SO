@@ -112,10 +112,10 @@
     <div class="card mb-4">
         <div class="card-header bg-white pt-3">
             <ul class="nav nav-tabs card-header-tabs" id="typeTabs">
-                <li class="nav-item"><a class="nav-link active" href="#" data-type="bac3">Hàm bậc 3</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" data-type="bac3">Hàm bậc 3</a></li>
                 <li class="nav-item"><a class="nav-link" href="#" data-type="bac1_1">Phân thức bậc 1 / 1</a></li>
                 <li class="nav-item"><a class="nav-link" href="#" data-type="bac2_1">Phân thức bậc 2 / 1</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" data-type="trungphuong">Trùng phương</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#" data-type="trungphuong">Trùng phương</a></li>
                 <li class="nav-item"><a class="nav-link" href="#" data-type="bac2">Hàm bậc 2</a></li>
             </ul>
         </div>
@@ -502,7 +502,7 @@
         }
     };
 
-    let currentType = 'bac3';
+    let currentType = 'trungphuong';
     let currentRawMarkdown = '';
 
     function setupTabs() {
@@ -970,7 +970,6 @@
         return ctx;
     }
 
-    // Chuẩn hóa cấu trúc biểu thức toán học
     function parseMathTerm(term) {
         if (!term) return { prefix: "", radicand: "" };
         if (typeof term === 'object' && (term.prefix !== undefined || term.radicand !== undefined)) {
@@ -984,7 +983,6 @@
         return { prefix: s, radicand: "" };
     }
 
-    // Đo kích thước chính xác của biểu thức chứa căn
     function measureMathTerm(ctx, term, fontSize = 13) {
         let t = parseMathTerm(term);
         let prefix = t.prefix;
@@ -1002,7 +1000,6 @@
         return totalW;
     }
 
-    // Vẽ biểu thức toán học kèm căn bậc 2 chuẩn sách giáo khoa (có móc căn & thanh ngang phủ trên đầu)
     function drawMathTerm(ctx, term, x, y, align = 'center', fontSize = 13) {
         let t = parseMathTerm(term);
         let prefix = t.prefix;
@@ -1024,14 +1021,12 @@
 
         let baseY = y + fontSize * 0.32;
 
-        // 1. Vẽ phần tiền tố (ví dụ: "3 - ", "2", "-")
         if (prefix) {
             ctx.textAlign = "left";
             ctx.textBaseline = "alphabetic";
             ctx.fillText(prefix, startX, baseY);
         }
 
-        // 2. Vẽ ký hiệu căn bậc 2 chuẩn mực (móc căn + thanh ngang phủ trên đầu số dưới căn)
         if (hasRad) {
             let rx = startX + wPref;
             let capH = fontSize * 0.72;
@@ -1044,18 +1039,13 @@
             ctx.lineJoin = "miter";
 
             ctx.beginPath();
-            // Nét móc nhỏ khởi đầu
             ctx.moveTo(rx, baseY - fontSize * 0.3);
             ctx.lineTo(rx + checkmarkW * 0.25, baseY - fontSize * 0.15);
-            // Nét chéo đi xuống đáy căn
             ctx.lineTo(rx + checkmarkW * 0.52, dipY);
-            // Nét vươn thẳng đứng lên đỉnh căn
             ctx.lineTo(rx + checkmarkW, topY);
-            // THANH NGANG (VINCULUM) PHỦ TRÙM TRỌN VẸN LÊN ĐẦU BIỂU THỨC DƯỚI DẤU CĂN
             ctx.lineTo(rx + checkmarkW + wRad + overbarExtra, topY);
             ctx.stroke();
 
-            // Vẽ số dưới dấu căn nằm lọt lòng bên dưới thanh ngang
             ctx.textAlign = "left";
             ctx.textBaseline = "alphabetic";
             ctx.fillText(radicand, rx + checkmarkW + 0.8, baseY);
@@ -1065,7 +1055,6 @@
         return totalW;
     }
 
-    // Vẽ giá trị chính xác (phân số tối giản, căn thức, số nguyên)
     function drawExactValue(ctx, obj, x, y, align = 'center') {
         if (!obj) return 0;
         ctx.save();
@@ -1078,7 +1067,6 @@
             return w;
         }
 
-        // Trường hợp phân số
         let numTerm = obj.numObj || (obj.num !== undefined ? obj.num : "0");
         let denTerm = obj.denObj || (obj.den !== undefined ? obj.den : "1");
 
@@ -1104,7 +1092,6 @@
         let barEnd = barStart + barW;
         let midX = (barStart + barEnd) / 2;
 
-        // Gạch ngang phân số
         ctx.strokeStyle = "#0f172a";
         ctx.lineWidth = 1.2;
         ctx.beginPath();
@@ -1112,10 +1099,7 @@
         ctx.lineTo(barEnd, y);
         ctx.stroke();
 
-        // Vẽ tử số (có hỗ trợ căn thức)
         drawMathTerm(ctx, numTerm, midX, y - 8, 'center', 13);
-
-        // Vẽ mẫu số
         drawMathTerm(ctx, denTerm, midX, y + 8, 'center', 13);
 
         ctx.restore();
@@ -1171,7 +1155,7 @@
         const yBot = 245; 
         const getYPos = (lvl) => lvl === 'top' ? yTop : (lvl === 'bot' ? yBot : yMid);
 
-        // 1. Dòng x: Hiển thị giá trị căn bậc hai và phân số chuẩn xác
+        // 1. Dòng x
         for (let i = 0; i < nCols; i++) {
             let px = colX[i];
             let c = cols[i];
@@ -1204,7 +1188,7 @@
             }
         }
 
-        // 3. Dòng y: Cực trị căn bậc hai hiển thị đẹp mắt, chỉ in đúng 1 lần
+        // 3. Dòng y
         let nodes = [];
         for (let i = 0; i < nCols; i++) {
             let c = cols[i];
@@ -1357,8 +1341,26 @@
     }
 
     // =========================================================================
-    // 6. VẼ ĐỒ THỊ HÀM SỐ TRÊN HỆ TRỤC OXY
+    // 6. VẼ ĐỒ THỊ HÀM SỐ TRÊN HỆ TRỤC OXY (VIỀN TRẮNG CHỐNG BỊ ĐÈ NÉT CHỮ)
     // =========================================================================
+    function drawTextWithHalo(ctx, text, x, y, options = {}) {
+        ctx.save();
+        ctx.font = options.font || "12px Arial";
+        ctx.textAlign = options.align || "center";
+        ctx.textBaseline = options.baseline || "top";
+        ctx.lineJoin = "round";
+
+        // Lớp viền trắng bảo vệ chống nét cam đè lên
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 3.5;
+        ctx.strokeText(text, x, y);
+
+        // Chữ chính
+        ctx.fillStyle = options.color || "#334155";
+        ctx.fillText(text, x, y);
+        ctx.restore();
+    }
+
     function drawCanvasBadge(ctx, text, x, y, W, H, options = {}) {
         ctx.save();
         ctx.font = options.font || "bold 13px 'Times New Roman', serif";
@@ -1418,6 +1420,7 @@
         const toPxX = (x) => ((x - xMin) / (xMax - xMin)) * W;
         const toPxY = (y) => H - ((y - yMin) / (yMax - yMin)) * H;
 
+        // 1. Lưới tọa độ
         let stepGrid = (xMax - xMin > 18 || yMax - yMin > 18) ? 2 : 1;
         ctx.strokeStyle = "#f1f5f9";
         ctx.lineWidth = 1;
@@ -1428,8 +1431,8 @@
             ctx.beginPath(); ctx.moveTo(0, toPxY(y)); ctx.lineTo(W, toPxY(y)); ctx.stroke();
         }
 
+        // 2. Trục tọa độ Ox, Oy
         ctx.strokeStyle = "#334155";
-        ctx.fillStyle = "#334155";
         ctx.lineWidth = 1.6;
 
         const py0 = toPxY(0);
@@ -1437,37 +1440,11 @@
 
         ctx.beginPath(); ctx.moveTo(0, py0); ctx.lineTo(W, py0); ctx.stroke();
         drawVectorArrow(ctx, W - 15, py0, W, py0, "#334155");
-        ctx.font = "italic 16px 'Times New Roman', serif";
-        ctx.fillText("x", W - 15, py0 + 18);
 
         ctx.beginPath(); ctx.moveTo(px0, H); ctx.lineTo(px0, 0); ctx.stroke();
         drawVectorArrow(ctx, px0, 15, px0, 0, "#334155");
-        ctx.fillText("y", px0 + 15, 15);
-        
-        ctx.textAlign = "right";
-        ctx.textBaseline = "top";
-        ctx.fillText("O", px0 - 5, py0 + 5);
 
-        ctx.font = "12px Arial";
-        for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x += stepGrid) {
-            if (x === 0) continue;
-            let px = toPxX(x);
-            if (px < 22 || px > W - 22) continue;
-            ctx.beginPath(); ctx.moveTo(px, py0 - 3); ctx.lineTo(px, py0 + 3); ctx.stroke();
-            ctx.textAlign = "center";
-            ctx.textBaseline = "top";
-            ctx.fillText(x, px, py0 + 5);
-        }
-        for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y += stepGrid) {
-            if (y === 0) continue;
-            let py = toPxY(y);
-            if (py < 22 || py > H - 22) continue;
-            ctx.beginPath(); ctx.moveTo(px0 - 3, py); ctx.lineTo(px0 + 3, py); ctx.stroke();
-            ctx.textAlign = "right";
-            ctx.textBaseline = "middle";
-            ctx.fillText(y, px0 - 6, py);
-        }
-
+        // 3. Đường tiệm cận nét đứt
         ctx.lineWidth = 1.4;
         ctx.setLineDash([5, 5]);
         ctx.strokeStyle = "#ef4444";
@@ -1489,6 +1466,7 @@
         }
         ctx.setLineDash([]);
 
+        // 4. VẼ ĐƯỜNG CONG ĐỒ THỊ (VẼ TRƯỚC ĐỂ KHÔNG ĐÈ LÊN CHỮ)
         ctx.save();
         ctx.beginPath();
         ctx.rect(0, 0, W, H);
@@ -1542,6 +1520,7 @@
 
         ctx.restore();
 
+        // 5. Nét đứt dóng tọa độ cực trị
         if (data.graphExtrema) {
             data.graphExtrema.forEach(pt => {
                 ctx.strokeStyle = "#94a3b8";
@@ -1553,7 +1532,39 @@
                 ctx.lineTo(px0, toPxY(pt.y));
                 ctx.stroke();
                 ctx.setLineDash([]);
+            });
+        }
 
+        // 6. Vạch chia và số đo tọa độ (VẼ LỚP TRÊN KÈM VIỀN TRẮNG CHỐNG ĐÈ NÉT)
+        ctx.strokeStyle = "#334155";
+        ctx.lineWidth = 1.3;
+
+        // Trục Ox
+        for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x += stepGrid) {
+            if (x === 0) continue;
+            let px = toPxX(x);
+            if (px < 22 || px > W - 22) continue;
+            ctx.beginPath(); ctx.moveTo(px, py0 - 3); ctx.lineTo(px, py0 + 3); ctx.stroke();
+            drawTextWithHalo(ctx, x, px, py0 + 5, { align: "center", baseline: "top" });
+        }
+
+        // Trục Oy (đặt khoảng đệm px0 - 8 để tránh đè chấm tròn, chữ có viền trắng giữ nguyên dấu trừ)
+        for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y += stepGrid) {
+            if (y === 0) continue;
+            let py = toPxY(y);
+            if (py < 22 || py > H - 22) continue;
+            ctx.beginPath(); ctx.moveTo(px0 - 3, py); ctx.lineTo(px0 + 3, py); ctx.stroke();
+            drawTextWithHalo(ctx, y, px0 - 8, py, { align: "right", baseline: "middle" });
+        }
+
+        // Tên trục và gốc O
+        drawTextWithHalo(ctx, "x", W - 15, py0 + 18, { font: "italic 16px 'Times New Roman', serif" });
+        drawTextWithHalo(ctx, "y", px0 + 15, 15, { font: "italic 16px 'Times New Roman', serif" });
+        drawTextWithHalo(ctx, "O", px0 - 5, py0 + 5, { font: "italic 16px 'Times New Roman', serif", align: "right", baseline: "top" });
+
+        // 7. Chấm điểm cực trị
+        if (data.graphExtrema) {
+            data.graphExtrema.forEach(pt => {
                 ctx.fillStyle = "#dc2626";
                 ctx.beginPath();
                 ctx.arc(toPxX(pt.x), toPxY(pt.y), 4.5, 0, 2*Math.PI);
@@ -1561,34 +1572,37 @@
             });
         }
 
+        // 8. Chấm điểm uốn (Hàm bậc 3)
         if (data.inflectionPoint) {
             let pt = data.inflectionPoint;
             ctx.fillStyle = "#2563eb";
             ctx.beginPath();
             ctx.arc(toPxX(pt.x), toPxY(pt.y), 4.5, 0, 2*Math.PI);
             ctx.fill();
-
-            ctx.font = "italic bold 13px 'Times New Roman', serif";
-            ctx.fillStyle = "#1e3a8a";
-            ctx.textAlign = "left";
-            ctx.textBaseline = "bottom";
-            ctx.fillText(pt.label, toPxX(pt.x) + 6, toPxY(pt.y) - 6);
+            drawTextWithHalo(ctx, pt.label, toPxX(pt.x) + 7, toPxY(pt.y) - 6, {
+                font: "italic bold 13px 'Times New Roman', serif",
+                color: "#1e3a8a",
+                align: "left",
+                baseline: "bottom"
+            });
         }
 
+        // 9. Chấm tâm đối xứng I (Hàm phân thức)
         if (data.symmetryCenter) {
             let pt = data.symmetryCenter;
             ctx.fillStyle = "#7c3aed";
             ctx.beginPath();
             ctx.arc(toPxX(pt.x), toPxY(pt.y), 5, 0, 2*Math.PI);
             ctx.fill();
-
-            ctx.font = "italic bold 13px 'Times New Roman', serif";
-            ctx.fillStyle = "#6d28d9";
-            ctx.textAlign = "left";
-            ctx.textBaseline = "bottom";
-            ctx.fillText(pt.label, toPxX(pt.x) + 7, toPxY(pt.y) - 6);
+            drawTextWithHalo(ctx, pt.label, toPxX(pt.x) + 7, toPxY(pt.y) - 6, {
+                font: "italic bold 13px 'Times New Roman', serif",
+                color: "#6d28d9",
+                align: "left",
+                baseline: "bottom"
+            });
         }
 
+        // 10. Nhãn tiệm cận
         if (data.asymptotes.v !== undefined && data.asymptotes.vPlain) {
             let px = toPxX(data.asymptotes.v);
             let badgeX = px > W - 80 ? px - 8 : px + 8;
